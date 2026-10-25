@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grok-bot-backup"
+version = "0.1.0"
+description = "Back up your Grok Bot (bots, routines, skills) to git. Unofficial and read-only."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [{ name = "Cole Tebou" }]
+keywords = ["grok", "grok-bot", "cursor", "xai", "backup", "ai-agents"]
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Archiving :: Backup",
+]
+
+[project.urls]
+Homepage = "https://github.com/coletebou/grok-bot-backup"
+
+[project.scripts]
+grok-bot-backup = "grok_bot_backup:main"
+
+[tool.setuptools]
+py-modules = ["grok_bot_backup"]
