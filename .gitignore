@@ -1,0 +1,7 @@
+__pycache__/
+*.egg-info/
+build/
+dist/
+.DS_Store
+# the default --out folder: your backup, not this repo's
+/grok-bot-backup/
