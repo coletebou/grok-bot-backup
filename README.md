@@ -106,6 +106,21 @@ What it writes:
 - It only clears `bots/` and `skills/` in a folder it created itself (marked by
   `.grok-bot-backup`).
 
+## Support status and retention
+
+- **Unofficial.** The calls above are the app's own private API, which is not documented. A Grok
+  Bot release can change or refuse them, and the terms may not anticipate scripted use. Expect
+  breakage, and don't build anything that depends on it.
+- **It runs as you.** The token (`CURSOR_ACCESS_TOKEN` or the Cursor CLI login, about 60 days) can
+  do anything your account can. Keep it on one machine, and don't put it in CI.
+- **"Read-only" can still start your bot computer.** `EnsureSandBox` is the call the app makes on
+  launch to bring the computer up. A scheduled run may boot it.
+- **Conversations and memory are never fetched.** No call this tool makes returns them, and it
+  doesn't export anything anywhere except the folder you name.
+- **Retention is your git history.** Each changed day is a commit. Deleted bots and routines
+  vanish from the folder but stay in history. Rewrite history only to remove a leaked secret, after
+  rotating it.
+
 ## Restoring
 
 - **A routine:** paste its `.md` into a chat with the bot and ask it to recreate the routine.
