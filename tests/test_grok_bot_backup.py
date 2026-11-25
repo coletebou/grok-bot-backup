@@ -134,6 +134,30 @@ class BackupTests(unittest.TestCase):
         self.assertTrue(api.calls[-1][0].startswith("https://pod-1340.box.example/api/"))
         self.assertEqual(api.calls[1][1], {"agentIds": [ALPHA, ROOM], "timeZone": "UTC"})
 
+    def test_port_token_box_routes_with_the_port_token(self):
+        # Boxes since mid-November 2026: no network token, a per-port routing token instead.
+        box = {"gatewayUrl": "https://pod-1340.box.example/", "gatewayToken": "gateway-token", "networkToken": "",
+               "gatewayPortToken": "port.token.jwt", "egressTunnelPortToken": "egress.token"}
+        _, api = run_backup(self.out, FakeApi(EnsureSandBox=box))
+        headers = api.calls[-1][2]
+        self.assertEqual(headers["x-anyrun-port-token"], "port.token.jwt")
+        self.assertEqual(headers["authorization"], "Bearer gateway-token")
+        self.assertNotIn("x-anyrun-network-token", headers)
+
+    def test_network_token_wins_over_a_port_token(self):
+        box = {**BOX, "gatewayPortToken": "port.token.jwt"}
+        _, api = run_backup(self.out, FakeApi(EnsureSandBox=box))
+        headers = api.calls[-1][2]
+        self.assertEqual(headers["x-anyrun-network-token"], "network-token")
+        self.assertNotIn("x-anyrun-port-token", headers)
+
+    def test_port_token_alone_is_enough(self):
+        box = {"gatewayUrl": "https://pod-1340.box.example", "gatewayPortToken": "port.token.jwt"}
+        _, api = run_backup(self.out, FakeApi(EnsureSandBox=box))
+        headers = api.calls[-1][2]
+        self.assertEqual(headers["x-anyrun-port-token"], "port.token.jwt")
+        self.assertNotIn("authorization", headers)
+
     def test_rerun_without_changes_is_byte_identical(self):
         run_backup(self.out)
         first = snapshot(self.out)

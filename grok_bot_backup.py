@@ -224,14 +224,26 @@ def skill_markdown(skill):
 
 
 def gateway(box):
-    url, token = box.get("gatewayUrl"), box.get("gatewayToken")
-    if not url or not token:
+    """The bot computer's base URL and the headers its gateway needs, as EnsureSandBox describes them.
+
+    Boxes from mid-November 2026 route by a per-port token (`gatewayPortToken`, sent as
+    x-anyrun-port-token) and may have no network token; older ones use a network token
+    (x-anyrun-network-token). This follows the Grok Bot app's own choice between them.
+    """
+    url = box.get("gatewayUrl")
+    token = str(box.get("gatewayToken") or "")
+    network = str(box.get("networkToken") or box.get("anyrunNetworkToken") or "")
+    port = str(box.get("gatewayPortToken") or "")
+    if not url or not (token or network or port):
         raise BackupError("EnsureSandBox returned no gateway (a Cursor dashboard API key will not work; use `agent login`)")
-    headers = {"content-type": "application/json", "authorization": "Bearer " + check_token(str(token), "the gateway token")}
+    headers = {"content-type": "application/json"}
+    if token:
+        headers["authorization"] = "Bearer " + check_token(token, "the gateway token")
     extra = box.get("gatewayHeaders") if isinstance(box.get("gatewayHeaders"), dict) else {}
-    network = box.get("networkToken") or box.get("anyrunNetworkToken")
-    if network and not extra:
-        extra = {"x-anyrun-network-token": network}
+    if not extra and port and not network:
+        extra = {"x-anyrun-port-token": check_token(port, "the gateway port token")}
+    elif not extra and network:
+        extra = {"x-anyrun-network-token": check_token(network, "the gateway network token")}
     headers.update({str(k).lower(): str(v) for k, v in extra.items()})
     return url.rstrip("/"), headers
 
