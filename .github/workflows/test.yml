@@ -11,8 +11,11 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # ubuntu-latest moved to 26.04, where setup-python has no 3.9 build, and README promises 3.9+.
+    runs-on: ubuntu-24.04
     strategy:
+      # One version failing should not cancel the other's result.
+      fail-fast: false
       matrix:
         python: ["3.9", "3.13"]
     steps:
